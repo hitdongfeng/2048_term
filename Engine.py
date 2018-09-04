@@ -1,4 +1,4 @@
-from os import system
+import os
 
 from Board import Board
 
@@ -32,12 +32,6 @@ class Engine():
         # TODO:
         # Change so the user doesn't have to press 'Enter' every time.
         # Change so there is no output when user types in something that fails
-        print('''
-        Moves:
-        W, K => Up
-        S, J => Down
-        A, H => Left
-        D, L => Right''')
         move = input('>>> ')
         try:
             self._process_move(move)
@@ -47,6 +41,7 @@ class Engine():
         return move
 
     def _process_move(self, move):
+        # convert to lowercase before check
         if move in ['w', 'k']:
             return 'U'
         elif move in ['s', 'j']:
@@ -59,11 +54,15 @@ class Engine():
             raise ValueError('Your move \'{}\' is not recognized.'.format(move))
 
     def _print(self):
-        # print score
-        # print board
-        system('clear')
+        os.system('clear')
         print(self._board.score)
         print(self._board)
+        print('''
+        Moves:
+        W, K => Up
+        S, J => Down
+        A, H => Left
+        D, L => Right''')
 
     def _end(self):
         '''
