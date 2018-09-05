@@ -1,5 +1,3 @@
-import os
-
 from Board import Board
 
 
@@ -8,7 +6,7 @@ class Engine():
         size = self._get_settings()
         self._board = Board(size)
 
-    def _get_settings():
+    def _get_settings(self):
         '''
         Get the following settings for the game setup:
         1) Board size
@@ -22,10 +20,12 @@ class Engine():
         while len(self._board.empty_tiles) > 1 or self._board.can_collapse():
             self._print()
             move = self._get_move()
-            # Add support for restarting, quitting
             if move in ['U', 'D', 'L', 'R']:
                 self._board.collapse(move)
                 self._board.spawn()
+            else:
+                # Add support for restarting, quitting
+                pass
         self._end()
 
     def _get_move(self):
@@ -34,14 +34,14 @@ class Engine():
         # Change so there is no output when user types in something that fails
         move = input('>>> ')
         try:
-            self._process_move(move)
+            move = self._process_move(move)
         except ValueError as e:
             print('ValueError: ', e)
             move = self._get_move()
         return move
 
     def _process_move(self, move):
-        # convert to lowercase before check
+        move = move.lower()
         if move in ['w', 'k']:
             return 'U'
         elif move in ['s', 'j']:
@@ -54,8 +54,7 @@ class Engine():
             raise ValueError('Your move \'{}\' is not recognized.'.format(move))
 
     def _print(self):
-        os.system('clear')
-        print(self._board.score)
+        print('Score: {}'.format(self._board.score))
         print(self._board)
         print('''
         Moves:

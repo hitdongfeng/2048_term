@@ -14,107 +14,148 @@ class Board():
             tile.val = 2
 
     def __str__(self):
-        # TODO
         # Make some fancy output for user
         return self.__repr__()
 
     def __repr__(self):
-        rows = self._rowize()
+        rows = self._rowize(self.tiles)
         rows = list(map(str, rows))
         return '\n'.join(rows)
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
 
     @property
-    def tiles(self):
+    def tiles(self) -> list:
         return [t.val for t in self._tiles]
 
     @property
-    def score(self):
+    def score(self) -> int:
         return self._score
 
     @property
-    def empty_tiles(self):
+    def empty_tiles(self) -> list:
         '''
         Returns a list of the empty Tiles
         '''
         return [t for t in self._tiles if t.val == 0]
 
-    def spawn(self):
+    def spawn(self) -> None:
         '''
         Fills a random empty tile with a value of 2
         '''
-        empty_tiles = self.empty()
-        to_spawn = choice(empty_tiles)
-        to_spawn.val = 2
+        tiles = self.empty_tiles
+        if len(tiles):
+            to_spawn = choice(tiles)
+            to_spawn.val = 2
 
     def can_collapse(self) -> bool:
         '''
-        Checks if the board can be collapsed. If not, then game is over.
+        Checks if a move can be made in any 4 directions. If not, then game is over.
         '''
-        rows = self._rowize()
-        columns = self._columnize()
+        rows = self._rowize(self._tiles)
+        columns = self._columnize(self._tiles)
         row_collapse = False
         col_collapse = False
 
         for row in rows:
             for i in range(self.size - 1):
-                if row[i].val != 0 and row[i].val == row[i + 1].val:
+                if row[i].val == 0 or row[i].val == row[i + 1].val:
                     row_collapse = True
+                    break
+            if row_collapse:
+                break
 
         for col in columns:
             for i in range(self.size - 1):
-                if col[i].val != 0 and col[i].val == col[i + 1].val:
+                if col[i].val == 0 or col[i].val == col[i + 1].val:
                     col_collapse = True
+                    break
+            if col_collapse:
+                break
 
         return row_collapse or col_collapse
 
-    def collapse(self, direction: str):
-        # if 3 or more in a row start collapsing from direction side first
-        # fill after collapsing
-        if direction == 'U':
-            temp_board = self._columnize()
-        elif direction == 'D':
-            temp_board = self._columnize()
-        elif direction == 'L':
-            temp_board = self._rowize()
-        elif direction == 'R':
-            temp_board = self._rowize()
-            for row in temp_board:
-                # possibly change below to while loop
-                for i in reversed(range(len(row) - 1)):
-                    if row[i] == 0:
-                        # collapse down here
-                        pass
-                    if row[i] == row[i - 1]:
-                        row[i] = row[i] * 2
+    def collapse(self, direction: str) -> None:
+        '''
+        Collapses the board toward a given direction, merging tiles of the same
+        value and empty tiles with filled tiles.
+        '''
+        if direction in ['U', 'D']:
+            temp_board = self._columnize(self._tiles)
+        else:
+            temp_board = self._rowize(self._tiles)
 
-    def _rowize(self):
+        if direction in ['L', 'U']:
+            row_i = 0
+            while row_i < len(temp_board):
+                row = temp_board[row_i]
+                # add pairs
+                for i in range(len(row) - 1): # offset to not iterate last tile
+                    if row[i] == row[i + 1]:
+                        row[i] = row[i] + row[i + 1]
+                        self._score = self._score + row[i].val
+                        row[i + 1].val = 0
+                # collapse
+                # remove all zeroes, then append until len(row)
+                row = [tile for tile in row if tile.val != 0]
+                row.extend([0] * (len(temp_board) - len(row)))
+                row_i += 1
+        else:
+            row_i = 0
+            while row_i < len(temp_board):
+                row = temp_board[row_i]
+                # add pairs
+                for i in reversed(range(1, len(row))):
+                    if row[i] == row[i - 1]:
+                        row[i] = row[i] + row[i - 1]
+                        self._score = self._score + row[i].val
+                        row[i - 1].val = 0
+                # collapse
+                # remove all zeroes, then prepend until len(row)
+                row = [tile for tile in row if tile.val != 0]
+                row = [0] * (len(temp_board) - len(row)) + row
+                row_i += 1
+
+        if direction in ['U', 'D']:
+            self._tiles = self._linearize_col(temp_board)
+        else:
+            self._tiles = self._linearize_row(temp_board)
+
+    def _rowize(self, l):
         '''
-        Returns a list of lists of the tiles in row major order.
+        Given a linear list, returns a list of lists of the tiles in row major order.
         '''
-        rows = []
-        for i in self.size:
-            rows.append([])
-        for i in range(len(self._tiles)):
-            rows[i // self.size].append(self._tiles[i])
+        width = int(len(l) ** 0.5)
+        rows = [[] for i in range(width)]
+        for i in range(len(l)):
+            rows[i // width].append(l[i])
         return rows
 
-    def _columnize(self):
+    def _columnize(self, l):
         '''
-        Returns a list of lists of the tiles in column major order.
+        Given a linear list, returns a list of lists of the tiles in column major order.
         '''
-        cols = []
-        for i in self.size:
-            cols.append([])
-        for i in range(len(self._tiles)):
-            cols[i % self.size].append(self._tiles[i])
+        width = int(len(l) ** 0.5)
+        cols = [[] for i in range(width)]
+        for i in range(len(l)):
+            cols[i % width].append(l[i])
         return cols
 
-    def linearize_row(l):
+    def _linearize_row(self, l):
+        '''
+        Given a list of lists in row major order, return a list of its linear
+        representation.
+        '''
         return reduce(lambda x, y: x + y, l)
 
-    def linearize_col(self):
-        pass
+    def _linearize_col(self, l):
+        '''
+        Given a list of lists in column major order, return a list of its linear
+        representation.
+        '''
+        res = []
+        for i in range(len(l) ** 2):
+            res.append(l[i % len(l)].pop(0))
+        return res
