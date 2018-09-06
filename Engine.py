@@ -1,3 +1,5 @@
+import os
+
 from Board import Board
 
 
@@ -11,6 +13,7 @@ class Engine():
         Get the following settings for the game setup:
         1) Board size
         '''
+        os.system('clear')
         size = input('What is your board size? 4x4, 5x5, etc.\n>>> ')
         assert int(size[0]) > 1, 'Board size must be 2x2 or more.'
         size = int(size[0])
@@ -18,11 +21,13 @@ class Engine():
 
     def start(self):
         while len(self._board.empty_tiles) > 1 or self._board.can_collapse():
-            self._print()
+            self._output()
             move = self._get_move()
             if move in ['U', 'D', 'L', 'R']:
-                self._board.collapse(move)
-                self._board.spawn()
+                change = self._board.collapse(move)
+                if change:
+                    self._board.moves += 1
+                    self._board.spawn()
             else:
                 # Add support for restarting, quitting
                 pass
@@ -53,15 +58,14 @@ class Engine():
         else:
             raise ValueError('Your move \'{}\' is not recognized.'.format(move))
 
-    def _print(self):
+    def _output(self):
+        os.system('clear')
         print('Score: {}'.format(self._board.score))
+        print('Move: {}'.format(self._board.moves))
+        print()
         print(self._board)
-        print('''
-        Moves:
-        W, K => Up
-        S, J => Down
-        A, H => Left
-        D, L => Right''')
+        print()
+        print('Moves:\nW, K => Up\nS, J => Down\nA, H => Left\nD, L => Right')
 
     def _end(self):
         '''
