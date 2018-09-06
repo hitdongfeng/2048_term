@@ -63,9 +63,18 @@ class Engine():
         print('Score: {}'.format(self._board.score))
         print('Move: {}'.format(self._board.moves))
         print()
-        print(self._board)
+        self._print_board()
         print()
         print('Moves:\nW, K => Up\nS, J => Down\nA, H => Left\nD, L => Right')
+
+    def _print_board(self):
+        i = 0
+        tiles = self._board.tiles
+        for row in range(self._board.width):
+            for col in range(self._board.width):
+                print('{:>6}'.format(tiles[i]), end='')
+                i += 1
+            print()
 
     def _end(self):
         '''
