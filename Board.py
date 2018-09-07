@@ -6,11 +6,11 @@ from Tile import Tile
 
 class Board():
     def __init__(self, size: int):
-        self._width = size
-        self._score = 0
-        self._tiles = [Tile() for i in range(size * size)]
-        self._moves = 0
-        init_tiles = sample(self._tiles, 2)
+        self.__width = size
+        self.__score = 0
+        self.__tiles = [Tile() for i in range(size * size)]
+        self.__moves = 0
+        init_tiles = sample(self.__tiles, 2)
         for tile in init_tiles:
             tile.val = 2
 
@@ -21,30 +21,30 @@ class Board():
 
     @property
     def width(self) -> int:
-        return self._width
+        return self.__width
 
     @property
     def tiles(self) -> list:
-        return [t.val for t in self._tiles]
+        return [t.val for t in self.__tiles]
 
     @property
     def score(self) -> int:
-        return self._score
+        return self.__score
 
     @property
     def moves(self) -> int:
-        return self._moves
+        return self.__moves
 
     @moves.setter
     def moves(self, n):
-        self._moves = n
+        self.__moves = n
 
     @property
     def empty_tiles(self) -> list:
         '''
         Returns a list of the empty Tiles
         '''
-        return [t for t in self._tiles if t.val == 0]
+        return [t for t in self.__tiles if t.val == 0]
 
     def spawn(self) -> None:
         '''
@@ -61,13 +61,13 @@ class Board():
         '''
         Checks if a move can be made in any 4 directions. If not, then game is over.
         '''
-        rows = self._rowize(self._tiles)
-        columns = self._columnize(self._tiles)
+        rows = self._rowize(self.__tiles)
+        columns = self._columnize(self.__tiles)
         row_collapse = False
         col_collapse = False
 
         for row in rows:
-            for i in range(self._width - 1):
+            for i in range(self.__width - 1):
                 if row[i].val == 0 or row[i].val == row[i + 1].val:
                     row_collapse = True
                     break
@@ -75,7 +75,7 @@ class Board():
                 break
 
         for col in columns:
-            for i in range(self._width - 1):
+            for i in range(self.__width - 1):
                 if col[i].val == 0 or col[i].val == col[i + 1].val:
                     col_collapse = True
                     break
@@ -85,8 +85,8 @@ class Board():
         return row_collapse or col_collapse
 
     def collapse(self, direction) -> bool:
-        check_board = self._tiles
-        temp_board = self._columnize(self._tiles) if direction in ['U', 'D'] else self._rowize(self._tiles)
+        check_board = self.__tiles
+        temp_board = self._columnize(self.__tiles) if direction in ['U', 'D'] else self._rowize(self.__tiles)
 
         self._push_tiles(temp_board, direction)
         self._add_pairs(temp_board, direction)
@@ -95,9 +95,9 @@ class Board():
         temp_board = self._linearize_col(temp_board) if direction in ['U', 'D'] else self._linearize_row(temp_board)
 
         # check before assigning
-        for i in range(self._width * self._width - 1):
+        for i in range(self.__width * self.__width - 1):
             if check_board[i] != temp_board[i]:
-                self._tiles = temp_board
+                self.__tiles = temp_board
                 return True
 
         return False
@@ -120,13 +120,13 @@ class Board():
                 for i in range(len(row) - 1):
                     if row[i] == row[i + 1]:
                         row[i] = row[i] + row[i + 1]
-                        self._score = self._score + row[i].val
+                        self.__score = self.__score + row[i].val
                         row[i + 1].val = 0
             else:
                 for i in reversed(range(1, len(row))):
                     if row[i] == row[i - 1]:
                         row[i] = row[i] + row[i - 1]
-                        self._score = self._score + row[i].val
+                        self.__score = self.__score + row[i].val
                         row[i - 1].val = 0
 
     def _rowize(self, l):

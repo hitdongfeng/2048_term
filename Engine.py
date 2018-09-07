@@ -6,7 +6,7 @@ from Board import Board
 class Engine():
     def __init__(self):
         size = self._get_settings()
-        self._board = Board(size)
+        self.__board = Board(size)
 
     def _get_settings(self):
         '''
@@ -20,14 +20,14 @@ class Engine():
         return size
 
     def start(self):
-        while len(self._board.empty_tiles) > 1 or self._board.can_collapse():
+        while len(self.__board.empty_tiles) > 1 or self.__board.can_collapse():
             self._output()
             move = self._get_move()
             if move in ['U', 'D', 'L', 'R']:
-                change = self._board.collapse(move)
+                change = self.__board.collapse(move)
                 if change:
-                    self._board.moves += 1
-                    self._board.spawn()
+                    self.__board.moves += 1
+                    self.__board.spawn()
             else:
                 # Add support for restarting, quitting
                 pass
@@ -60,8 +60,8 @@ class Engine():
 
     def _output(self):
         os.system('clear')
-        print('Score: {}'.format(self._board.score))
-        print('Move: {}'.format(self._board.moves))
+        print('Score: {}'.format(self.__board.score))
+        print('Move: {}'.format(self.__board.moves))
         print()
         self._print_board()
         print()
@@ -69,9 +69,9 @@ class Engine():
 
     def _print_board(self):
         i = 0
-        tiles = self._board.tiles
-        for row in range(self._board.width):
-            for col in range(self._board.width):
+        tiles = self.__board.tiles
+        for row in range(self.__board.width):
+            for col in range(self.__board.width):
                 print('{:>6}'.format(tiles[i]), end='')
                 i += 1
             print()
