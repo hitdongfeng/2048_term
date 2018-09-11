@@ -1,2 +1,0 @@
-add stuff for pypi, setup.py
-add bg color for tiles
